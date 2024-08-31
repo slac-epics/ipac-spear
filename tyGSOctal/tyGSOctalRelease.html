@@ -1,24 +1,89 @@
 <HTML>
 <HEAD>
-<TITLE>SBS/GreenSpring Octal Serial Driver Release Notes</TITLE>
-<META NAME="Author" CONTENT="Andrew Johnson">
-<META NAME="Description" CONTENT="Release Notes for the vxWorks GreenSpring Octal Serial driver software">
-<META NAME="KeyWords" CONTENT="SBS/GreenSpring, vxWorks, IPAC, Octal Serial">
-<META NAME="Version" CONTENT="$Id: tyGSOctalRelease.html,v 1.1.1.4 2007/10/22 20:28:53 saa Exp $">
+<TITLE>GE Fanuc Embedded Systems Octal Serial Driver Release Notes</TITLE>
 </HEAD>
 <BODY>
 
 <CENTER>
-<H2>SBS/GreenSpring Octal Serial Driver Release Notes</H2>
+<H2>GE Fanuc Embedded Systems Octal Serial Driver Release Notes</H2>
 <P>Software by <I>Peregrine McGehee</I><BR>
-Release by <I>Andrew Johnson</I></P>
+Rewritten and maintained by <I>Andrew Johnson</I></P>
 </CENTER>
 
 <P>This document describes changes made to Peregrine McGehee's vxWorks driver
-for the SBS/GreenSpring Octal RS232/RS422/RS485 IndustryPack modules since this
-driver was merged into the unbundled EPICS ipac support area. Version numbers
-refer to the release of the ipac support software as a whole. The earliest
-version appears at the bottom, with more recent releases above it.</P><HR>
+for the GE Fanuc Embedded Systems Octal RS232/RS422/RS485 IndustryPack modules
+since this driver was merged into the unbundled EPICS ipac support area. Version
+numbers refer to the release of the ipac support software as a whole. The
+earliest version appears at the bottom, with more recent releases above
+it.</P><HR>
+
+<HR>
+<H2>Version 2.14</H2>
+
+<P>Bugs Fixed:</P>
+
+<UL>
+
+<LI>tyGSOctalConfig() was not checking that the device returned by iosDevFind()
+was an exact match to the name given. Now it does.</LI>
+
+</UL>
+
+<P>Changed:</P>
+
+<UL>
+
+<LI>Define _VSB_CONFIG_FILE to prevent VxWorks 6.x compiler warning.</LI>
+
+</UL>
+
+<HR>
+<H2>Version 2.13</H2>
+
+<P>Bugs Fixed:</P>
+
+<UL>
+
+<LI>Fixed problems using this driver on MVME3100 and 6100 boards by changing the
+ISR. It now only processes one channel per interrupt, and when called it starts
+scanning for work to be done from the next channel in turn.</LI>
+
+</UL>
+
+<HR>
+<H2>Version 2.12</H2>
+
+<P>Bugs Fixed:</P>
+
+<UL>
+
+<LI>A high interrupt rate when many channels are in use could result in missing
+characters. Some additional interrupt locking has been added to prevent this
+problem.</LI>
+
+<LI>CPUs with longer or more complex write pipelines might not have flushed the
+last write cycle from the interrupt service routine. A better flush location is
+now used.</LI>
+
+</UL>
+
+<P>Added:</P>
+
+<UL>
+
+<LI>Counters for read, write and interrupt events. The counter values are
+reported by the tyGSOctalReport() routine.</LI>
+
+</UL>
+
+<P>Changed:</P>
+
+<UL>
+
+<LI>Warning and error messages from configuration command routines are now
+displayed using printf() instead of logMsg()</LI>
+
+</UL>
 
 <HR>
 <H2>Version 2.9</H2>

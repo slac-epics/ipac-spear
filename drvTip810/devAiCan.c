@@ -13,8 +13,6 @@ Author:
     Andrew Johnson <anjohnson@iee.org>
 Created:
     8 August 1995
-Version:
-    $Id: devAiCan.c,v 1.8 2010/05/21 23:28:20 saa Exp $
 
 Copyright (c) 1995-2000 Andrew Johnson
 
@@ -39,6 +37,8 @@ Copyright (c) 1995-2000 Andrew Johnson
 #include <stdlib.h>
 #include <string.h>
 
+#include <epicsTypes.h>
+#include <epicsTimer.h>
 #include <errMdef.h>
 #include <devLib.h>
 #include <dbDefs.h>

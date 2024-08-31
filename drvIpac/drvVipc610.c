@@ -18,8 +18,6 @@ Author:
     Andrew Johnson <anjohnson@iee.org>
 Created:
     19 July 1995
-Version:
-    $Id: drvVipc610.c,v 1.5 2010/05/21 21:46:30 saa Exp $
 
 Copyright (c) 1995-2003 Andrew Johnson
 
@@ -43,6 +41,8 @@ Copyright (c) 1995-2003 Andrew Johnson
 #include <stdio.h>
 #include <string.h>
 
+#include <epicsTypes.h>
+#include <errMdef.h>
 #include <devLib.h>
 #include <iocsh.h>
 #include <epicsExport.h>
@@ -336,6 +336,7 @@ static ipac_carrier_t vipc610 = {
     NULL,
     baseAddr,
     irqCmd_610,
+    NULL,
     NULL
 };
 
@@ -350,6 +351,7 @@ static ipac_carrier_t vipc610_01 = {
     NULL,
     baseAddr,
     irqCmd_610_01,
+    NULL,
     NULL
 };
 

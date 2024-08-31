@@ -18,8 +18,6 @@ Author:
     Andrew Johnson <anjohnson@iee.org>
 Created:
     17 October 1997
-Version:
-    $Id: drvVipc616.c,v 1.5 2010/05/21 21:46:30 saa Exp $
 
 Copyright (c) 1995-2003 Andrew Johnson
 
@@ -43,6 +41,8 @@ Copyright (c) 1995-2003 Andrew Johnson
 #include <stdio.h>
 #include <string.h>
 
+#include <epicsTypes.h>
+#include <errMdef.h>
 #include <devLib.h>
 #include <iocsh.h>
 #include <epicsExport.h>
@@ -362,6 +362,7 @@ static ipac_carrier_t vipc616 = {
     NULL,
     baseAddr,
     irqCmd_616,
+    NULL,
     NULL
 };
 
@@ -376,6 +377,7 @@ static ipac_carrier_t vipc616_01 = {
     NULL,
     baseAddr,
     irqCmd_616_01,
+    NULL,
     NULL
 };
 

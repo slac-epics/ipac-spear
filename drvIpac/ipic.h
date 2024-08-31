@@ -14,8 +14,6 @@ Author:
     Andrew Johnson <anjohnson@iee.org>
 Created:
     6 July 1995
-Version:
-    $Id: ipic.h,v 1.1.1.2 2008/11/11 20:41:45 saa Exp $
 
 Copyright (c) 1995-2000 Andrew Johnson
 

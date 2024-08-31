@@ -15,8 +15,6 @@ Author:
     Andrew Johnson <anjohnson@iee.org>
 Created:
     6 July 1995
-Version:
-    $Id: drvIpMv162.c,v 1.1.1.3 2008/11/11 20:41:45 saa Exp $
 
 Copyright (c) 1995-2000 Andrew Johnson
 
@@ -44,10 +42,13 @@ Copyright (c) 1995-2000 Andrew Johnson
 #include <vxLib.h>
 #include <taskLib.h>
 
+#include "epicsTypes.h"
+#include "errMdef.h"
+#include "iocsh.h"
+#include "epicsExport.h"
+
 #include "drvIpac.h"
 #include "ipic.h"
-#include "epicsExport.h"
-#include "iocsh.h"
 
 
 /* Characteristics of the card */
@@ -369,6 +370,7 @@ static ipac_carrier_t ipmv162 = {
     NULL,
     baseAddr,
     irqCmd,
+    NULL,
     NULL
 };
 

@@ -13,8 +13,6 @@ Author:
     Andrew Johnson <anjohnson@iee.org>
 Created:
     25 July 1995
-Version:
-    $Id: canBus.h,v 1.8 2010/05/21 23:28:19 saa Exp $
 
 Copyright (c) 1995-2000 Andrew Johnson
 

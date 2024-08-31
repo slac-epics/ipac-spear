@@ -14,8 +14,6 @@ Author:
     Andrew Johnson <anjohnson@iee.org>
 Created:
     3 July 1995
-Version:
-    $Id: drvIpac.c,v 1.8 2010/05/21 21:46:30 saa Exp $
 
 Copyright (c) 1995-2007 Andrew Johnson
 
@@ -36,17 +34,22 @@ Copyright (c) 1995-2007 Andrew Johnson
 *******************************************************************************/
 
 
+/* ANSI headers */
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 
+/* EPICS headers */
+#include <epicsTypes.h>
+#include <errMdef.h>
 #include <drvSup.h>
 #include <epicsStdio.h>
-#include <epicsExport.h>
 #include <cantProceed.h>
 #include <devLib.h>
 #include <iocsh.h>
+#include <epicsExport.h>
 
+/* Module headers */
 #include "drvIpac.h"
 
 
@@ -98,8 +101,14 @@ static void ipacReportCallFunc(const iocshArgBuf *args) {
     ipacReport(args[0].ival);
 }
 
+static const iocshFuncDef ipacAddNullFuncDef = {"ipacAddNullCarrier",0};
+static void ipacAddNullCallFunc(const iocshArgBuf *args) {
+    ipacAddNullCarrier();
+}
+
 void ipacRegistrar(void) {
-    iocshRegister(&ipacReportFuncDef,ipacReportCallFunc);
+    iocshRegister(&ipacReportFuncDef, ipacReportCallFunc);
+    iocshRegister(&ipacAddNullFuncDef, ipacAddNullCallFunc);
 }
 epicsExportRegistrar(ipacRegistrar);
 
@@ -192,6 +201,31 @@ int ipacAddCarrier (
 /*******************************************************************************
 
 Routine:
+    ipacAddNullCarrier
+
+Purpose:
+    Used to reserve a carrier number.
+
+Description:
+    Registers a null carrier.
+
+Returns:
+    0 = OK,
+    S_IPAC_tooMany = Carrier Info Table full.
+
+Example:
+    ipacAddNullCarrier();
+
+*/
+
+int ipacAddNullCarrier (void) {
+    return ipacAddCarrier(NULL, NULL);
+}
+
+
+/*******************************************************************************
+
+Routine:
     ipacLatestCarrier
 
 Function:
@@ -221,55 +255,49 @@ int ipacLatestCarrier(void)
 /*******************************************************************************
 
 Routine:
-    ipmCheck
+    ipcCheckId
 
 Function:
-    Check on presence of an IPAC module at the given carrier & slot number.
+    Check on presence of an IPAC ID Prom at the given location.
 
 Description:
-    Does a quick check to make sure the carrier and slot numbers are legal, 
-    probes the IDprom space to ensure an IPAC is installed, and checks that 
-    the IDprom starts with the "IPAC" identifier.
+    This routine must not be called if no module is present and an
+    access to the id pointer could trigger a bus error or SEGV. It
+    checks that the ID Prom starts with the format-1 "IPAC" or "IPAH"
+    or format-2 "VITA4 " identifiers.
 
 Returns:
     0 = OK,
-    S_IPAC_badAddress = Bad carrier or slot number,
-    S_IPAC_noModule = No module installed,
-    S_IPAC_noIpacId = "IPAC"/"VITA4 " identifier not found
+    S_IPAC_badDriver = NULL pointer passed for id
+    S_IPAC_noIpacId = "IPAC"/"IPAH"/"VITA4 " identifier not found
 
 */
 
-int ipmCheck (
-    int carrier,
-    int slot
+int ipcCheckId (
+    ipac_idProm_t *id
 ) {
-    ipac_idProm_t *id;
     epicsUInt16 word;
 
-    if (carrier < 0 ||
-	carrier >= carriers.number ||
-	slot < 0 ||
-	slot >= carriers.info[carrier].driver->numberSlots) {
-	return S_IPAC_badAddress;
-    }
-
-    id = (ipac_idProm_t *) ipmBaseAddr(carrier, slot, ipac_addrID);
     if (id == NULL) {
 	return S_IPAC_badDriver;
     }
+    word = id->asciiI;
 
-    if (devReadProbe(sizeof(word), (void *)&id->asciiI, (char *)&word)) {
-	return S_IPAC_noModule;
-    }
+#ifndef linux /* rnd */
     if ((word & 0xff) != 'I') {
 	return S_IPAC_noIpacId;
     }
+#else
+    if ((id->asciiI & 0xff) != 'I') {
+        return S_IPAC_noIpacId;
+     }
+#endif
 
     /*
      * The Format-1 check is deliberately de-optimized to fix a problem with
-     * one particular IP module which can't handle the back-to-back accesses
-     * that the cc68k compiler generates if the "IPAC" ID is tested in a
-     * single if() statement.  Format-2 modules should be Ok though.
+     * IP modules which can't handle back-to-back accesses that compilers
+     * may generate if the "IPAC" ID is tested in a single if () statement.
+     * Format-2 modules should be Ok though.
      */
 
     if ((id->asciiP & 0xff) != 'P') {
@@ -291,6 +319,61 @@ int ipmCheck (
     }
 
     return OK;
+}
+
+
+/*******************************************************************************
+
+Routine:
+    ipmCheck
+
+Function:
+    Check on presence of an IPAC module at the given carrier & slot number.
+
+Description:
+    Checks to make sure the carrier and slot numbers are legal, then probes for
+    the presence of an ID Prom, delegating this operation to the carrier driver
+    if it provides a moduleProbe() routine. If access to a the ID Prom space is
+    safe it delegates checking the IPAC header to the ipcCheckId() routine.
+
+Returns:
+    0 = OK,
+    S_IPAC_badAddress = Bad carrier or slot number,
+    S_IPAC_badDriver = Carrier driver returned NULL ID address,
+    S_IPAC_noModule = No module installed,
+    S_IPAC_noIpacId = "IPAC"/"IPAH"/"VITA4 " identifier not found.
+
+*/
+
+int ipmCheck (
+    int carrier,
+    int slot
+) {
+    ipac_idProm_t *id;
+
+    if (carrier < 0 ||
+	carrier >= carriers.number ||
+	slot < 0 ||
+	slot >= carriers.info[carrier].driver->numberSlots) {
+	return S_IPAC_badAddress;
+    }
+
+    id = (ipac_idProm_t *) ipmBaseAddr(carrier, slot, ipac_addrID);
+
+    if (carriers.info[carrier].driver->moduleProbe == NULL) {
+	epicsUInt16 word;
+#ifndef linux /* rnd */
+	if (devReadProbe(sizeof(word), (void *)&id->asciiI, (char *)&word)) {
+	    return S_IPAC_noModule;
+	}
+    }
+    else {
+	if (carriers.info[carrier].driver->moduleProbe(
+		carriers.info[carrier].cPrivate, slot) == 0)
+	return S_IPAC_noModule;
+#endif
+    }
+    return ipcCheckId(id);
 }
 
 

@@ -37,9 +37,11 @@ allow the user to configure different memory sizes
 #include <iv.h>
 #include <semLib.h>
 
-#include "drvIpac.h"
-#include "epicsExport.h"
+#include "epicsTypes.h"
+#include "errMdef.h"
 #include "iocsh.h"
+#include "epicsExport.h"
+#include "drvIpac.h"
 
 
 /*
@@ -782,7 +784,8 @@ static ipac_carrier_t atc40 = {
     report,
     baseAddr,
     irqCmd,
-    intVecConnect
+    intVecConnect,
+    NULL
 };
 
 int ipacAddATC40(const char *cardParams) {

@@ -1,16 +1,15 @@
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="">
-  <title>GreenSpring OctalUart IP Module Support</title>
+  <title>GE Fanuc Embedded Systems OctalUart IP Module Support</title>
 </head>
 
 <body text="#000000" bgcolor="#ffffff" link="#000080" vlink="#707070"
 alink="0000080">
-<h1>SBS OctalUart IP Module Support</h1>
+<h1>GE Fanuc Embedded Systems OctalUart IP Module Support</h1>
 
 <h2>Introduction</h2>
 
-<p>This software drives the SBS (formerly GreenSpring) OctalUart family of
+<p>This software drives the GE Fanuc Embedded Systems OctalUart family of
 Industry Pack modules to communicate with a number of RS-232, RS-422, and
 RS-485 devices.  Note that this driver is <b>not</b> compatible with newer
 IP-OctalPlus modules as they use a different chipset.</p>
@@ -44,7 +43,7 @@ tyGSOctalDrv 6
 # ----------------------------
 # tyGSOctalModuleInit(char *moduleID, char *ModuleType, int irq_num,
 #                     char *carrier#, int slot#)
-#   moduleID   - assign the IP module a name for future reference. 
+#   moduleID   - assign the IP module a name for future reference.
 #   ModuleType - "232", "422", or "485".
 #   irq_num    - interrupt request number.
 #   carrier#   - carrier# assigned from the ipacAdd<i>CarrierType</i>() call.
@@ -90,7 +89,7 @@ tyGSOctalDevCreateAll "/tyGS/1,0/",   "Mod2", 512, 512
 
 # Configure the ports.
 # --------------------
-# void tyGSOctalConfig (char *portname, int baud, char parity, int stop,
+# STATUS tyGSOctalConfig (char *portname, int baud, char parity, int stop,
 #                       int bits, char flow)
 #   portname - portname from either the tyGSOctalDevCreate() call or
 #              the tyGSOctalDevCreateAll() call.
@@ -105,6 +104,45 @@ tyGSOctalConfig "/tyGS/0,0/0", 38400, 'N', 1, 8, 'N'
 
   </pre>
 </blockquote>
+
+<p>When running EPICS base 3.15 or higher, the iocshLoad command can be used
+with the tyGSOctal.iocsh script included in this module's top-level iocsh
+directory. The following shows an example of such a use.</p>
+
+<blockquote>
+<pre>
+# Initialize the drvIpac carriers.
+# -------------------------------
+# carrier#0
+ipacAddMVME162    "A:m=0xe0000000,64 l=3,2"
+# carrier#1
+ipacAddVIPC616_01 "0x6400,0xB0000000"
+# carrier#2
+ipacAddTVME200    "602fb00"
+
+# Initialize an IP-Octal module called MOD0 that's located in slot A of
+# of the first initialized carrier (MVME162), and then create 8 tty
+# ports labeled /tyGS/0,0/0 through /tyGS/0,0/7 on that module.
+# Also tell the script that you will be initializing up to 5 more modules.
+iocshLoad("$(IPAC)/iocsh/tyGSOctal.iocsh", "INSTANCE=MOD0, INT_VEC=0x80, CARRIER=0, SLOT=0, TYPE=232, MAX_MODULES=6")
+
+# Initialize the IP-Octal module in slot B of the MVME162, the tty ports
+# created will be labeled /tyGS/0,1/0 through /tyGS/0,1/7
+iocshLoad("$(IPAC)/iocsh/tyGSOctal.iocsh", "INSTANCE=MOD1, INT_VEC=0x81, CARRIER=0, SLOT=1, TYPE=232")
+
+# Init two IP-Octal modules from the 1st SBS VIPC616_01 carrier; the 1st
+# module is in slot A, the 2nd module is in slot C.
+iocshLoad("$(IPAC)/iocsh/tyGSOctal.iocsh", "INSTANCE=MOD2, INT_VEC=0x82, CARRIER=1, SLOT=0, TYPE=232")
+iocshLoad("$(IPAC)/iocsh/tyGSOctal.iocsh", "INSTANCE=MOD3, INT_VEC=0x83, CARRIER=1, SLOT=2, TYPE=232")
+
+# Init two IP-Octal modules from the 2nd SBS VIPC616_01 carrier; the 1st
+# module is in slot B, the second module is in slot D. Both are RS485
+# instead of RS232
+iocshLoad("$(IPAC)/iocsh/tyGSOctal.iocsh", "INSTANCE=MOD4, INT_VEC=0x84, CARRIER=2, SLOT=1, TYPE=485")
+iocshLoad("$(IPAC)/iocsh/tyGSOctal.iocsh", "INSTANCE=MOD5, INT_VEC=0x85, CARRIER=2, SLOT=3, TYPE=485")
+</pre>
+</blockquote>
+
 
 <h2>RTEMS</h2>
 

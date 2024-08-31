@@ -13,8 +13,6 @@ Author:
     Andrew Johnson <anjohnson@iee.org>
 Created:
     20 July 1995
-Version:
-    $Id: drvTip810.c,v 1.15 2010/05/29 00:05:35 saa Exp $
 
 Copyright (c) 1995-2007 Andrew Johnson
 
@@ -41,6 +39,7 @@ Copyright (c) 1995-2007 Andrew Johnson
 #include <ctype.h>
 #include <errno.h>
 
+#include <epicsTypes.h>
 #include <iocsh.h>
 #include <drvSup.h>
 #include <devLib.h>
@@ -49,9 +48,9 @@ Copyright (c) 1995-2007 Andrew Johnson
 #include <epicsMutex.h>
 #include <epicsTimer.h>
 #include <epicsThread.h>
-#include <epicsExport.h>
 #include <epicsInterrupt.h>
 #include <epicsMessageQueue.h>
+#include <epicsExport.h>
 
 #include "canBus.h"
 #include "drvTip810.h"
@@ -561,11 +560,6 @@ static void t810ISR (
     t810Dev_t *pdevice = (t810Dev_t *) pdev;
     int intSource = pdevice->pchip->interrupt;
 
-    /* disable interrupts for this carrier and slot */
-    if (ipmIrqCmd(pdevice->card, pdevice->slot, 0,
-                  ipac_irqDisable) == S_IPAC_badAddress) {
-        epicsInterruptContextMessage("t810ISR: Error in card or slot number");
-    }
     if (intSource & PCA_IR_OI) {		/* Overrun Interrupt */
         pdevice->overCount++;
         canBusStop(pdevice->pbusName);		/* Reset the chip but not */
@@ -603,9 +597,7 @@ static void t810ISR (
 		status = CAN_BUS_OFF;
 		pdevice->busOffCount++;
 		epicsEventSignal(pdevice->txSem);	/* Signal transmit */
-#ifdef CLEAR_RESET_STATE
 		pdevice->pchip->control &= ~PCA_CR_RR;	/* Clear Reset state */
-#endif
 		if (!canSilenceErrors)
 		    epicsInterruptContextMessage("t810ISR: CANbus off event");
 		break;
@@ -627,11 +619,6 @@ static void t810ISR (
     if (intSource & PCA_IR_WUI) {		/* Wake-up Interrupt */
 	if (!canSilenceErrors)
 	    epicsInterruptContextMessage("Wake-up Interrupt from CANbus");
-    }
-    /* Clear and Enable Interrupt from Carrier Board Registers */
-    if (ipmIrqCmd(pdevice->card, pdevice->slot, 0,
-                  ipac_irqEnable) == S_IPAC_badAddress) {    
-        epicsInterruptContextMessage("t810ISR: Error in card or slot number");
     }
 }
 

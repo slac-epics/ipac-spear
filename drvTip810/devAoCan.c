@@ -13,8 +13,6 @@ Author:
     Andrew Johnson <anjohnson@iee.org>
 Created:
     9 August 1995
-Version:
-    $Id: devAoCan.c,v 1.7 2010/05/21 23:28:20 saa Exp $
 
 Copyright (c) 1995-2000 Andrew Johnson
 
@@ -41,6 +39,8 @@ Copyright (c) 1995-2000 Andrew Johnson
 #include <math.h>
 #include <float.h>
 
+#include <epicsTypes.h>
+#include <epicsTimer.h>
 #include <errMdef.h>
 #include <devLib.h>
 #include <dbAccess.h>

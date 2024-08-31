@@ -12,8 +12,6 @@ Author:
     Andrew Johnson <anjohnson@iee.org>
 Created:
     3 April 1997
-Version:
-    $Id: devBiTip810.c,v 1.5 2010/05/21 23:28:20 saa Exp $
 
 Copyright (c) 1995-2000 Andrew Johnson
 
@@ -37,6 +35,8 @@ Copyright (c) 1995-2000 Andrew Johnson
 #include <string.h>
 #include <ctype.h>
 
+#include <epicsTypes.h>
+#include <epicsTimer.h>
 #include <dbDefs.h>
 #include <dbAccess.h>
 #include <recSup.h>

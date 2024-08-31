@@ -1,4 +1,9 @@
 # file: RELEASE_NOTES
 
+R1.1.0  S. Condamoor 30-Aug-2024
+    Branch epics-7-sdf
+    Build with base 7.0.3.1-1.0 and sdf. 
+    Bring with LCLS V7 verion of ipac modules
+
 ipac-Rx-x-x  M. Dunning 27-Jul-2017
     This is ipac-R2-11-spear1, built with base R3.15.5-1.0 from lcls

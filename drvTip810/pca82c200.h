@@ -14,8 +14,6 @@ Author:
     Andrew Johnson <anjohnson@iee.org>
 Created:
     19 July 1995
-Version:
-    $Id: pca82c200.h,v 1.4 2010/05/21 23:28:22 saa Exp $
 
 Copyright (c) 1995-2000 Andrew Johnson
 
